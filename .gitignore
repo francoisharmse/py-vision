@@ -1,5 +1,3 @@
-static/videos
-
 # Ignore the .env file
 .env
 
@@ -17,3 +15,5 @@ coverage.xml
 *.py[co]
 __pycache__/
 # poetry ignore
+
+*.mp4
