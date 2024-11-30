@@ -33,33 +33,48 @@
         top: 20px;
         max-height: calc(100vh - 84px);
         overflow-y: auto;
+        border: 1px solid #e0e0e0;
       }
       .image-container {
-        position: relative;
         width: 100%;
-        max-width: 1000px;
-        margin-top: 20px;
-        text-align: center;
+        background: #f5f5f5;
+        border-radius: 4px;
+        padding: 15px;
+        margin: 20px auto;
+        max-width: 1200px;
+        border: 1px solid #e0e0e0;
+      }
+      .image-container h5,
+      .image-container p {
+        text-align: left;
+        margin: 0;
+      }
+      .image-container p {
+        margin-bottom: 15px;
       }
       .video-stream {
         width: 100%;
         height: auto;
+        cursor: pointer;
         display: block;
-        object-fit: contain;
+        margin: 0 auto;
       }
       .alert-list {
         background: rgba(255, 0, 0, 0.05);
         border-radius: 4px;
         padding: 15px;
-        margin-top: 20px;
+        margin-top: 0;
         width: 100%;
-        max-width: 1000px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid #e0e0e0;
       }
       .alert-items-container {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin-top: 10px;
+        margin-top: 0;
       }
       .alert-item {
         display: flex;
@@ -163,7 +178,7 @@
         border-radius: 4px;
         padding: 15px;
         height: fit-content;
-        border: 1px solid rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
       }
       .collapsible {
         border: none;
@@ -214,13 +229,80 @@
         margin-right: 8px;
         color: #2196f3;
       }
+      .side-container {
+        position: fixed;
+        left: 20px;
+        top: 84px;
+        background: #f5f5f5;
+        border-radius: 4px;
+        padding: 15px;
+        width: 300px;
+        border: 1px solid #e0e0e0;
+        height: fit-content;
+        text-align: center;
+      }
+      .effects-list {
+        position: fixed;
+        left: 20px;
+        top: 180px;
+        width: 300px;
+        background: #f5f5f5;
+        border-radius: 4px;
+        padding: 15px;
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+        border: 1px solid #e0e0e0;
+      }
+      .object-list-container {
+        position: fixed;
+        right: 20px;
+        top: 84px;
+        width: 300px;
+        background: #f5f5f5;
+        border-radius: 4px;
+        padding: 15px;
+        padding-top: 15px;
+        max-height: calc(100vh - 84px);
+        border: 1px solid #e0e0e0;
+      }
+      .object-list-container > h5 {
+        position: sticky;
+        top: 0;
+        background: #f5f5f5;
+        margin: 0;
+        padding-bottom: 5px;
+        z-index: 1;
+      }
+      .object-list-container > p {
+        position: sticky;
+        top: 30px;
+        background: #f5f5f5;
+        margin: 0;
+        padding-bottom: 10px;
+        z-index: 1;
+      }
+      #objectList {
+        padding-top: 10px;
+        overflow-y: auto;
+        max-height: calc(100vh - 180px);
+      }
+      .btn.blue {
+        margin: 0 auto;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+      }
     </style>
   </head>
   <body>
     <nav>
       <div class="nav-wrapper blue">
+        <a href="/" class="brand-logo left">
+          <i class="material-icons">home</i>
+        </a>
         <a href="#" class="brand-logo center">Object Detection</a>
-        <ul class="left">
+        <ul class="left" style="margin-left: 50px;">
+          <li><a href="{{ url_for('home') }}">Home</a></li>
           <li><a href="{{ url_for('image_detection') }}">Image Detection</a></li>
           <li class="active"><a href="{{ url_for('video_detection') }}">Video Detection</a></li>
         </ul>
@@ -228,9 +310,51 @@
     </nav>
 
     <div class="main-container">
-      {% if video_file %}
-      <!-- Left Panel - Video Filters -->
-      <div class="side-panel">
+      {% if not video_file %}
+      <div class="video-container">
+        <div style="width: 100%;">
+          <div class="row" style="margin-bottom: 0;">
+            <div class="col s12">
+              <div class="card" style="max-width: 1200px; margin: 0 auto;">
+                <div class="card-content">
+                  <span class="card-title">Upload a Video</span>
+                  <form class="upload-form" method="POST" enctype="multipart/form-data">
+                    <div class="file-field input-field">
+                      <div class="btn blue">
+                        <span>File</span>
+                        <input type="file" name="file" accept=".mp4,.avi,.mov">
+                      </div>
+                      <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text" placeholder="Upload a video">
+                      </div>
+                    </div>
+                    <button class="btn waves-effect waves-light blue" type="submit">
+                      Upload
+                      <i class="material-icons right">cloud_upload</i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="row">
+        <!-- Left side panels -->
+        <div class="side-container">                    
+          <form class="upload-form" method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="file-field input-field" style="margin: 0; text-align: center;">
+              <div class="btn blue">
+                <i class="material-icons left">add_circle</i>
+                <span>Analyze a New Video</span>
+                <input type="file" name="file" accept=".mp4,.avi,.mov" onchange="this.form.submit()">
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Video Filters container -->
         <div class="effects-list">
           <h5>Video Filters</h5>
           <p class="grey-text">Click to apply filter</p>
@@ -269,55 +393,48 @@
             </li>
           </ul>
         </div>
-      </div>
-      {% endif %}
 
-      <div class="video-container">
-        <form class="upload-form" method="POST" enctype="multipart/form-data">
-          <div class="file-field input-field">
-            <div class="btn blue">
-              <span>Upload Video</span>
-              <input type="file" name="file" accept=".mp4,.avi,.mov">
-            </div>
-            <div class="file-path-wrapper">
-              <input class="file-path validate" type="text">
+        <!-- Main content -->
+        <div style="margin-left: 340px; margin-right: 340px;">
+          <div class="image-container">
+            <h5>OpenCV Video Analytics</h5>
+            <p class="grey-text">{{ video_file }}</p>
+            <img id="videoStream" 
+                 class="video-stream" 
+                 src="{{ url_for('video_feed') }}" 
+                 alt="Video stream">
+          </div>
+          
+          <div class="alert-list">
+            <h5>Alert Objects</h5>
+            <p class="grey-text">Click to enable/disable alerts. Video will pause when selected objects are detected.</p>
+            <div id="alertList" class="alert-items-container">
+              <!-- Alert objects will be populated here -->
             </div>
           </div>
-          <button class="btn waves-effect waves-light blue" type="submit">
-            Submit
-            <i class="material-icons right">send</i>
-          </button>
-        </form>
-        
-        {% if video_file %}
-        <div class="image-container">
-          <img id="videoStream" 
-               class="video-stream" 
-               src="{{ url_for('video_feed') }}" 
-               alt="Video stream"
-               style="cursor: pointer;">
         </div>
-        
-        <div class="alert-list">
-          <h5>Alert Objects</h5>
-          <p class="grey-text">Click to enable/disable alerts. Video will pause when selected objects are detected.</p>
-          <div id="alertList" class="alert-items-container">
-            <!-- Alert objects will be populated here -->
-          </div>
-        </div>
-        {% endif %}
-      </div>
 
-      {% if video_file %}
-      <div class="object-list-container">
-        <h5>Detected Objects</h5>
-        <p class="grey-text">Click to toggle visibility</p>
-        <div id="objectList">
-          <!-- Object list will be populated here -->
+        <!-- Right side panel -->
+        <div class="object-list-container">
+          <h5>Detected Objects</h5>
+          <p class="grey-text">Click to toggle visibility</p>
+          <div id="objectList" style="margin-top: 50px;">
+            <!-- Object list will be populated here -->
+          </div>
         </div>
       </div>
       {% endif %}
     </div>
+
+    {% if video_file %}
+    <div class="object-list-container">
+      <h5>Detected Objects</h5>
+      <p class="grey-text">Click to toggle visibility</p>
+      <div id="objectList" style="margin-top: 50px;">
+        <!-- Object list will be populated here -->
+      </div>
+    </div>
+    {% endif %}
 
     <!-- Materialize JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
@@ -586,6 +703,18 @@
           document.getElementById('currentTime').textContent = formatTime(time);
         }
       }
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Materialize components
+        var elems = document.querySelectorAll('.collapsible');
+        var instances = M.Collapsible.init(elems);
+        
+        // Auto-submit form when file is selected
+        document.querySelector('input[type="file"]').addEventListener('change', function() {
+          this.form.submit();
+        });
+      });
     </script>
   </body>
 </html>

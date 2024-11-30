@@ -57,8 +57,12 @@
   <body>
     <nav>
       <div class="nav-wrapper blue">
+        <a href="/" class="brand-logo left">
+          <i class="material-icons">home</i>
+        </a>
         <a href="#" class="brand-logo center">Object Detection</a>
-        <ul class="left">
+        <ul class="left" style="margin-left: 50px;">
+          <li><a href="{{ url_for('home') }}">Home</a></li>
           <li class="active"><a href="{{ url_for('image_detection') }}">Image Detection</a></li>
           <li><a href="{{ url_for('video_detection') }}">Video Detection</a></li>
         </ul>
