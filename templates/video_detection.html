@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Video Detection</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <style>
+      .main-container {
+        display: flex;
+        gap: 20px;
+        min-height: calc(100vh - 64px);
+        padding: 20px;
+      }
+      .video-container {
+        flex: 7;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .object-list-container {
+        flex: 3;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        padding: 15px;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+        max-height: calc(100vh - 84px);
+        overflow-y: auto;
+      }
+      .image-container {
+        position: relative;
+        width: 100%;
+        max-width: 1000px;
+        margin-top: 20px;
+        text-align: center;
+      }
+      .video-stream {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: contain;
+      }
+      .alert-list {
+        background: rgba(255, 0, 0, 0.05);
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 1000px;
+      }
+      .alert-items-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .alert-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 1px solid #ddd;
+        flex: 1;
+        min-width: 140px;
+        max-width: calc(25% - 10px);
+      }
+      .alert-item:hover {
+        background-color: #fff5f5;
+      }
+      .alert-item.active {
+        background-color: #ffe5e5;
+        border-color: #ff9999;
+      }
+      .alert-item i {
+        margin-right: 8px;
+        color: #ff4444;
+      }
+      .upload-form {
+        margin: 0 0 20px 0;
+      }
+      .paused {
+        opacity: 0.7;
+      }
+      .play-overlay {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 48px;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        padding: 20px;
+        cursor: pointer;
+      }
+      .paused + .play-overlay {
+        display: block;
+      }
+      .video-controls {
+        display: none;
+      }
+      .control-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: background-color 0.3s;
+      }
+      .control-btn:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+      .control-btn i {
+        font-size: 24px;
+      }
+      .time-slider {
+        width: 100%;
+        margin: 10px 0;
+      }
+      .time-display {
+        text-align: center;
+        font-family: monospace;
+        margin: 5px 0;
+      }
+      .object-item {
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        margin: 4px 0;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .object-item:hover {
+        background-color: #f5f5f5;
+      }
+      .object-item.hidden {
+        opacity: 0.5;
+      }
+      .object-item i {
+        margin-right: 8px;
+      }
+      .side-panel {
+        flex: 3;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .effects-list {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        padding: 15px;
+        height: fit-content;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      .collapsible {
+        border: none;
+        box-shadow: none;
+        margin: 0;
+        background: transparent;
+      }
+      .collapsible-header {
+        background-color: transparent;
+        border: none;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      .collapsible-header:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+      .collapsible-header i {
+        margin-right: 8px;
+        color: #2196f3;
+      }
+      .collapsible-body {
+        border: none;
+        padding: 0 10px 10px 10px;
+        background: transparent;
+      }
+      .effect-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin: 8px 0;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 1px solid #ddd;
+      }
+      .effect-item:hover {
+        background-color: #f5f5f5;
+      }
+      .effect-item.active {
+        background-color: #e3f2fd;
+        border-color: #90caf9;
+      }
+      .effect-item i {
+        margin-right: 8px;
+        color: #2196f3;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper blue">
+        <a href="#" class="brand-logo center">Object Detection</a>
+        <ul class="left">
+          <li><a href="{{ url_for('image_detection') }}">Image Detection</a></li>
+          <li class="active"><a href="{{ url_for('video_detection') }}">Video Detection</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="main-container">
+      {% if video_file %}
+      <!-- Left Panel - Video Filters -->
+      <div class="side-panel">
+        <div class="effects-list">
+          <h5>Video Filters</h5>
+          <p class="grey-text">Click to apply filter</p>
+          
+          <!-- Style-Based Filters Section -->
+          <ul class="collapsible">
+            <li class="active">
+              <div class="collapsible-header">
+                <i class="material-icons">brush</i>Style-Based Filters
+              </div>
+              <div class="collapsible-body">
+                <div id="styleFiltersList">
+                  <!-- Filters will be populated here -->
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="collapsible-header">
+                <i class="material-icons">palette</i>Color Filters
+              </div>
+              <div class="collapsible-body">
+                <div id="colorFiltersList">
+                  <!-- Color filters will be populated here -->
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="collapsible-header">
+                <i class="material-icons">blur_on</i>Blur & Focus
+              </div>
+              <div class="collapsible-body">
+                <div id="blurFiltersList">
+                  <!-- Blur filters will be populated here -->
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="video-container">
+        <form class="upload-form" method="POST" enctype="multipart/form-data">
+          <div class="file-field input-field">
+            <div class="btn blue">
+              <span>Upload Video</span>
+              <input type="file" name="file" accept=".mp4,.avi,.mov">
+            </div>
+            <div class="file-path-wrapper">
+              <input class="file-path validate" type="text">
+            </div>
+          </div>
+          <button class="btn waves-effect waves-light blue" type="submit">
+            Submit
+            <i class="material-icons right">send</i>
+          </button>
+        </form>
+        
+        {% if video_file %}
+        <div class="image-container">
+          <img id="videoStream" 
+               class="video-stream" 
+               src="{{ url_for('video_feed') }}" 
+               alt="Video stream"
+               style="cursor: pointer;">
+        </div>
+        
+        <div class="alert-list">
+          <h5>Alert Objects</h5>
+          <p class="grey-text">Click to enable/disable alerts. Video will pause when selected objects are detected.</p>
+          <div id="alertList" class="alert-items-container">
+            <!-- Alert objects will be populated here -->
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if video_file %}
+      <div class="object-list-container">
+        <h5>Detected Objects</h5>
+        <p class="grey-text">Click to toggle visibility</p>
+        <div id="objectList">
+          <!-- Object list will be populated here -->
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+      let isPaused = false;
+      let currentSrc = "{{ url_for('video_feed') if video_file }}";
+      let videoDuration = 0;
+      let isSliderDragging = false;
+      let detectedObjects = new Set();
+      let alertObjects = ['person', 'dog', 'cell phone', 'bicycle', 'car', 'bus', 'gun', 'rifle'];
+      let activeAlertObjects = new Set();
+      let currentEffect = 'normal';
+      let videoEffects = {
+        style: [
+          { name: 'normal', icon: 'video_settings', label: 'Normal', description: 'Original video without any effects' },
+          { name: 'wireframe', icon: 'grid_on', label: 'Wireframe', description: 'Converts video into a wireframe representation of objects' },
+          { name: 'sketch', icon: 'create', label: 'Sketch/Line Drawing', description: 'Transforms video into a pencil or line-drawn appearance' },
+          { name: 'cartoon', icon: 'mood', label: 'Cartoon/Comic', description: 'Simplifies colors and adds bold outlines for a cartoon look' },
+          { name: 'watercolor', icon: 'palette', label: 'Watercolor/Painting', description: 'Mimics a watercolor or oil painting style' },
+          { name: 'vintage', icon: 'photo_filter', label: 'Vintage/Retro', description: 'Applies sepia tones and grain for an old-school look' },
+          { name: 'black_and_white', icon: 'monochrome_photos', label: 'Black & White', description: 'Converts video into grayscale' },
+          { name: 'film_grain', icon: 'grain', label: 'Film Grain', description: 'Adds a textured grain effect to mimic old film stock' }
+        ],
+        color: [
+          { name: 'color_grading', icon: 'color_lens', label: 'Color Grading', description: 'Professional color correction and grading' },
+          { name: 'hue_shift', icon: 'tune', label: 'Hue Shift', description: 'Dynamic color shifting effects' },
+          { name: 'invert', icon: 'invert_colors', label: 'Invert Colors', description: 'Inverts all colors in the video' },
+          { name: 'duotone', icon: 'gradient', label: 'Duotone', description: 'Two-color artistic effect' },
+          { name: 'sepia', icon: 'filter_vintage', label: 'Sepia', description: 'Classic sepia-toned effect' }
+        ],
+        blur: [
+          { name: 'gaussian_blur', icon: 'blur_circular', label: 'Gaussian Blur', description: 'Soft, uniform blur effect' },
+          { name: 'motion_blur', icon: 'blur_linear', label: 'Motion Blur', description: 'Directional blur for movement effect' },
+          { name: 'tilt_shift', icon: 'blur_on', label: 'Tilt-Shift', description: 'Selective focus for miniature effect' },
+          { name: 'sharpen', icon: 'filter_center_focus', label: 'Sharpen', description: 'Enhance edge details' }
+        ]
+      };
+
+      // Add click handler for video stream and initialize updates
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Materialize components first
+        var elems = document.querySelectorAll('.collapsible');
+        var instances = M.Collapsible.init(elems, {
+          accordion: true
+        });
+
+        // Clear existing filter lists
+        document.getElementById('styleFiltersList').innerHTML = '';
+        document.getElementById('colorFiltersList').innerHTML = '';
+        document.getElementById('blurFiltersList').innerHTML = '';
+
+        // Now create the filter lists
+        createEffectsList();
+
+        const videoStream = document.getElementById('videoStream');
+        if (videoStream) {
+          videoStream.addEventListener('click', toggleVideo);
+          
+          // Initial object list update
+          updateVideoInfo();
+          
+          // Start regular updates
+          setInterval(updateVideoInfo, 1000);
+        }
+      });
+
+      async function updateVideoInfo() {
+        try {
+          const response = await fetch("{{ url_for('video_info') }}");
+          const data = await response.json();
+          
+          // Update object list if there are new objects
+          if (data.detected_objects) {
+            const newObjects = new Set(data.detected_objects);
+            if (JSON.stringify([...newObjects]) !== JSON.stringify([...detectedObjects])) {
+              detectedObjects = newObjects;
+              createObjectList(data.detected_objects, data.hidden_objects || []);
+            }
+          }
+          
+          // Update video timing info
+          if (!isSliderDragging && data.duration) {
+            document.getElementById('currentTime').textContent = formatTime(data.current_time);
+            document.getElementById('totalTime').textContent = formatTime(data.duration);
+            document.getElementById('timeSlider').value = (data.current_time / data.duration) * 100;
+            videoDuration = data.duration;
+          }
+        } catch (error) {
+          console.error('Error updating video info:', error);
+        }
+      }
+
+      function createObjectList(objects, hiddenObjects) {
+        const objectList = document.getElementById('objectList');
+        if (!objectList) return;
+        
+        objectList.innerHTML = '';
+        
+        if (!objects || objects.length === 0) {
+          objectList.innerHTML = '<p class="grey-text">No objects detected yet</p>';
+          return;
+        }
+        
+        objects.sort().forEach(obj => {
+          const div = document.createElement('div');
+          div.className = `object-item waves-effect ${hiddenObjects.includes(obj) ? 'hidden' : ''}`;
+          div.onclick = () => toggleObject(obj, div);
+          
+          div.innerHTML = `
+            <i class="material-icons">${hiddenObjects.includes(obj) ? 'visibility_off' : 'visibility'}</i>
+            ${obj}
+          `;
+          
+          objectList.appendChild(div);
+        });
+      }
+      
+      async function toggleVideo() {
+        const videoStream = document.getElementById('videoStream');
+        const playOverlay = document.getElementById('playOverlay');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+        
+        const response = await fetch("{{ url_for('toggle_pause') }}");
+        const data = await response.json();
+        
+        isPaused = data.is_paused;
+        if (isPaused) {
+          videoStream.classList.add('paused');
+          playOverlay.style.display = 'block';
+          playPauseIcon.textContent = 'play_arrow';
+        } else {
+          videoStream.classList.remove('paused');
+          playOverlay.style.display = 'none';
+          playPauseIcon.textContent = 'pause';
+        }
+      }
+      
+      function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        seconds = Math.floor(seconds % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
+      
+      async function toggleObject(objectName, element) {
+        const response = await fetch(`{{ url_for('toggle_object') }}?name=${encodeURIComponent(objectName)}`);
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+          element.classList.toggle('hidden');
+          const icon = element.querySelector('i');
+          icon.textContent = data.hidden ? 'visibility_off' : 'visibility';
+        }
+      }
+
+      // Create alert objects list
+      function createAlertList() {
+        const alertList = document.getElementById('alertList');
+        alertList.innerHTML = '';
+        
+        alertObjects.forEach(obj => {
+          const div = document.createElement('div');
+          div.className = `alert-item waves-effect ${activeAlertObjects.has(obj) ? 'active' : ''}`;
+          div.onclick = () => toggleAlertObject(obj, div);
+          
+          div.innerHTML = `
+            <i class="material-icons">warning</i>
+            ${obj}
+          `;
+          
+          alertList.appendChild(div);
+        });
+      }
+      
+      async function toggleAlertObject(objectName, element) {
+        const response = await fetch(`{{ url_for('toggle_alert_object') }}?name=${encodeURIComponent(objectName)}`);
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+          element.classList.toggle('active');
+          if (data.active) {
+            activeAlertObjects.add(objectName);
+          } else {
+            activeAlertObjects.delete(objectName);
+          }
+        }
+      }
+      
+      // Initialize alert list
+      createAlertList();
+      
+      // Handle time slider
+      const timeSlider = document.getElementById('timeSlider');
+      timeSlider.addEventListener('mousedown', () => {
+        isSliderDragging = true;
+      });
+      
+      timeSlider.addEventListener('mouseup', () => {
+        isSliderDragging = false;
+      });
+      
+      timeSlider.addEventListener('change', (e) => {
+        const time = (e.target.value / 100) * videoDuration;
+        setVideoPosition(time);
+      });
+
+      function createEffectsList() {
+        console.log('Creating effects list...');
+        const styleList = document.getElementById('styleFiltersList');
+        const colorList = document.getElementById('colorFiltersList');
+        const blurList = document.getElementById('blurFiltersList');
+        
+        if (!styleList || !colorList || !blurList) {
+          console.error('Filter list elements not found');
+          return;
+        }
+
+        function createEffectItem(effect) {
+          const div = document.createElement('div');
+          div.className = `effect-item waves-effect ${effect.name === currentEffect ? 'active' : ''}`;
+          div.onclick = () => toggleEffect(effect.name, div);
+          
+          div.innerHTML = `
+            <i class="material-icons">${effect.icon}</i>
+            ${effect.label}
+          `;
+          
+          return div;
+        }
+        
+        // Create style filters
+        videoEffects.style.forEach(effect => {
+          styleList.appendChild(createEffectItem(effect));
+        });
+        
+        // Create color filters
+        videoEffects.color.forEach(effect => {
+          colorList.appendChild(createEffectItem(effect));
+        });
+        
+        // Create blur filters
+        videoEffects.blur.forEach(effect => {
+          blurList.appendChild(createEffectItem(effect));
+        });
+
+        console.log('Effects list created');
+      }
+
+      // Initialize effects list
+      // createEffectsList();
+      
+      async function toggleEffect(effectName, element) {
+        const response = await fetch(`{{ url_for('set_video_effect') }}?effect=${encodeURIComponent(effectName)}`);
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+          currentEffect = effectName;
+          document.querySelectorAll('.effect-item').forEach(item => item.classList.remove('active'));
+          element.classList.add('active');
+        }
+      }
+
+      async function setVideoPosition(time) {
+        const response = await fetch(`{{ url_for('set_video_position') }}?time=${time}`);
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('currentTime').textContent = formatTime(time);
+        }
+      }
+    </script>
+  </body>
+</html>

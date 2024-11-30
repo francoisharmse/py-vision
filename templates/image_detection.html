@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Object Detection</title>
+    <!-- Materialize CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <!-- Material Icons -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .container {
+        margin-top: 50px;
+      }
+      .image-container {
+        position: relative;
+        display: inline-block;
+        margin-top: 20px;
+        line-height: 0;
+      }
+      .preview-image {
+        max-width: 800px;
+        max-height: 800px;
+        width: auto;
+        height: auto;
+        display: block;
+        margin: 0;
+      }
+      .modal img {
+        max-width: 100%;
+        height: auto;
+      }
+      .bounding-box {
+        position: absolute !important;
+        border: 3px solid #4CAF50 !important;
+        pointer-events: none;
+        z-index: 10;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      .collection-item {
+        cursor: pointer;
+      }
+      .collection-item:hover {
+        background-color: #f5f5f5;
+      }
+      .collection-item.active {
+        background-color: #e8f5e9 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper blue">
+        <a href="#" class="brand-logo center">Object Detection</a>
+        <ul class="left">
+          <li class="active"><a href="{{ url_for('image_detection') }}">Image Detection</a></li>
+          <li><a href="{{ url_for('video_detection') }}">Video Detection</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col s12">
+          <div class="card">
+            <div class="card-content">
+              <span class="card-title">Upload an Image</span>
+              <form action="{{ url_for('image_detection') }}" method="post" enctype="multipart/form-data">
+                <div class="file-field input-field">
+                  <div class="btn blue">
+                    <span>File</span>
+                    <input type="file" name="file" accept="image/*" />
+                  </div>
+                  <div class="file-path-wrapper">
+                    <input
+                      class="file-path validate"
+                      type="text"
+                      placeholder="Upload an image"
+                    />
+                  </div>
+                </div>
+                <button class="btn waves-effect waves-light blue" type="submit">
+                  Upload
+                  <i class="material-icons right">cloud_upload</i>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {% if image_file %}
+          <div class="card">
+            <div class="card-content">
+              <span class="card-title">Uploaded Image</span>
+              <!-- Image container for preview -->
+              <div class="image-container" id="previewContainer">
+                <img
+                  src="{{ image_file }}"
+                  alt="Uploaded Image"
+                  class="preview-image modal-trigger"
+                  href="#imageModal"
+                  id="previewImage"
+                />
+              </div>
+
+              <!-- Modal Structure -->
+              <div id="imageModal" class="modal">
+                <div class="modal-content">
+                  <img src="{{ image_file }}" alt="Uploaded Image Full Size" />
+                </div>
+                <div class="modal-footer">
+                  <a
+                    href="#!"
+                    class="modal-close waves-effect waves-green btn-flat"
+                    >Close</a
+                  >
+                </div>
+              </div>
+
+              {% if detected_objects %}
+              <div class="section">
+                <h5>Detected Objects:</h5>
+                <div class="collection">
+                  {% for obj in detected_objects %}
+                  <div
+                    class="collection-item"
+                    data-bbox='{{ obj.bbox|tojson|safe }}'
+                    onclick="highlightObject(this)"
+                  >
+                    <span class="title">{{ obj.name }}</span>
+                    <span class="secondary-content"
+                      >Confidence: {{ obj.confidence }}</span
+                    >
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery (required for Materialize) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize all modals
+        var elems = document.querySelectorAll(".modal");
+        var instances = M.Modal.init(elems);
+      });
+
+      function highlightObject(element) {
+        console.log('Highlighting object:', element);
+        
+        // Remove existing boxes and active states
+        document.querySelectorAll(".bounding-box").forEach((box) => box.remove());
+        document.querySelectorAll(".collection-item").forEach((item) => item.classList.remove("active"));
+
+        // Add active state to clicked item
+        element.classList.add("active");
+
+        try {
+          // Get bounding box data
+          const bbox = JSON.parse(element.dataset.bbox);
+          console.log('Parsed bbox:', bbox);
+
+          const img = document.getElementById("previewImage");
+          const container = document.getElementById("previewContainer");
+
+          // Wait for image to be fully loaded
+          if (img.complete) {
+            createBox(bbox, img, container);
+          } else {
+            img.onload = () => createBox(bbox, img, container);
+          }
+        } catch (error) {
+          console.error('Error in highlightObject:', error);
+        }
+      }
+
+      function createBox(bbox, img, container) {
+        try {
+          // Log dimensions for debugging
+          console.log('Image dimensions:', {
+            naturalWidth: img.naturalWidth,
+            naturalHeight: img.naturalHeight,
+            displayWidth: img.width,
+            displayHeight: img.height,
+            containerWidth: container.offsetWidth,
+            containerHeight: container.offsetHeight
+          });
+
+          // Calculate scale factors
+          const scaleX = img.width / img.naturalWidth;
+          const scaleY = img.height / img.naturalHeight;
+          console.log('Scale factors:', { scaleX, scaleY });
+
+          // Create box element
+          const box = document.createElement("div");
+          box.className = "bounding-box";
+
+          // Calculate positions (rounded to prevent sub-pixel rendering)
+          const left = Math.round(bbox.x1 * scaleX);
+          const top = Math.round(bbox.y1 * scaleY);
+          const width = Math.round((bbox.x2 - bbox.x1) * scaleX);
+          const height = Math.round((bbox.y2 - bbox.y1) * scaleY);
+
+          // Set styles directly
+          Object.assign(box.style, {
+            position: 'absolute',
+            left: left + 'px',
+            top: top + 'px',
+            width: width + 'px',
+            height: height + 'px',
+            border: '3px solid #4CAF50',
+            zIndex: '10',
+            pointerEvents: 'none'
+          });
+
+          // Log box dimensions before adding to container
+          console.log('Box dimensions:', {
+            left,
+            top,
+            width,
+            height
+          });
+
+          // Add box to container
+          container.appendChild(box);
+          console.log('Box added to container');
+
+          // Verify box is visible
+          const computedStyle = window.getComputedStyle(box);
+          console.log('Box computed style:', {
+            position: computedStyle.position,
+            left: computedStyle.left,
+            top: computedStyle.top,
+            width: computedStyle.width,
+            height: computedStyle.height,
+            border: computedStyle.border,
+            zIndex: computedStyle.zIndex,
+            display: computedStyle.display
+          });
+        } catch (error) {
+          console.error('Error in createBox:', error);
+        }
+      }
+
+      // Update box positions when window is resized
+      window.addEventListener("resize", function () {
+        const activeItem = document.querySelector(".collection-item.active");
+        if (activeItem) {
+          highlightObject(activeItem);
+        }
+      });
+    </script>
+  </body>
+</html>

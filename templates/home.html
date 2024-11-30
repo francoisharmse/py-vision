@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AI Vision Detection</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <style>
+      .hero {
+        background: linear-gradient(45deg, #2196F3, #1976D2);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+      }
+      .feature-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .feature-card .card-content {
+        flex-grow: 1;
+      }
+      .feature-icon {
+        font-size: 48px;
+        color: #2196F3;
+        margin-bottom: 20px;
+      }
+      .demo-section {
+        background: #f5f5f5;
+        padding: 40px 0;
+        margin: 40px 0;
+      }
+      .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+      .tech-item {
+        background: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper blue">
+        <a href="#" class="brand-logo center">AI Vision Detection</a>
+        <ul class="left">
+          <li class="active"><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('image_detection') }}">Image Detection</a></li>
+          <li><a href="{{ url_for('video_detection') }}">Video Detection</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div class="container center-align">
+        <h1>Real-Time Object Detection</h1>
+        <p class="flow-text">
+          Powerful AI-driven object detection for images and videos using state-of-the-art YOLOv5
+        </p>
+        <div class="row">
+          <div class="col s12 m6">
+            <a href="{{ url_for('image_detection') }}" class="btn-large waves-effect waves-light">
+              Try Image Detection
+              <i class="material-icons right">image</i>
+            </a>
+          </div>
+          <div class="col s12 m6">
+            <a href="{{ url_for('video_detection') }}" class="btn-large waves-effect waves-light">
+              Try Video Detection
+              <i class="material-icons right">videocam</i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m4">
+          <div class="card feature-card">
+            <div class="card-content center-align">
+              <i class="material-icons feature-icon">visibility</i>
+              <span class="card-title">Object Detection</span>
+              <p>
+                Detect and identify multiple objects in real-time using advanced machine learning
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col s12 m4">
+          <div class="card feature-card">
+            <div class="card-content center-align">
+              <i class="material-icons feature-icon">notification_important</i>
+              <span class="card-title">Smart Alerts</span>
+              <p>
+                Set up custom alerts for specific objects and get notified when they appear
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col s12 m4">
+          <div class="card feature-card">
+            <div class="card-content center-align">
+              <i class="material-icons feature-icon">filter</i>
+              <span class="card-title">Video Effects</span>
+              <p>
+                Apply real-time effects including wireframe, black & white, and ray tracing
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <div class="container">
+        <h4 class="center-align">Key Features</h4>
+        <div class="row">
+          <div class="col s12 m6">
+            <ul class="collection">
+              <li class="collection-item">
+                <i class="material-icons left">check</i>
+                Real-time object detection with YOLOv5
+              </li>
+              <li class="collection-item">
+                <i class="material-icons left">check</i>
+                Support for both images and videos
+              </li>
+              <li class="collection-item">
+                <i class="material-icons left">check</i>
+                Custom alert system for specific objects
+              </li>
+              <li class="collection-item">
+                <i class="material-icons left">check</i>
+                Multiple video processing effects
+              </li>
+            </ul>
+          </div>
+          <div class="col s12 m6">
+            <ul class="collection">
+              <li class="collection-item">
+                <i class="material-icons left">check</i>
+                Interactive video controls and timeline
+              </li>
+              <li class="collection-item">
+                <i class="material-icons left">check</i>
+                Object visibility toggling
+              </li>
+              <li class="collection-item">
+                <i class="material-icons left">check</i>
+                Customizable alert objects
+              </li>
+              <li class="collection-item">
+                <i class="material-icons left">check</i>
+                Modern, responsive interface
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <h4 class="center-align">Technology Stack</h4>
+      <div class="tech-stack">
+        <div class="tech-item">Python</div>
+        <div class="tech-item">Flask</div>
+        <div class="tech-item">YOLOv5</div>
+        <div class="tech-item">OpenCV</div>
+        <div class="tech-item">PyTorch</div>
+        <div class="tech-item">Material Design</div>
+      </div>
+    </div>
+
+    <footer class="page-footer blue">
+      <div class="container">
+        <div class="row">
+          <div class="col s12 center-align">
+            <h5>Start Detecting Objects Today</h5>
+            <p>Upload your images or videos and see the power of AI in action</p>
+          </div>
+        </div>
+      </div>
+      <div class="footer-copyright">
+        <div class="container center-align">
+          © 2024 AI Vision Detection
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  </body>
+</html>
