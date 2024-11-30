@@ -4,14 +4,18 @@ import numpy as np
 from PIL import Image
 import cv2
 from flask import Flask, render_template, request, url_for, redirect, Response, session
+from flask_sock import Sock
 from werkzeug.utils import secure_filename
 import logging
+import json
+import time
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+sock = Sock(app)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB max file size
 app.secret_key = 'your_secret_key_here'  # Required for session
@@ -19,6 +23,31 @@ app.secret_key = 'your_secret_key_here'  # Required for session
 # Create upload directories if they don't exist
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'images'), exist_ok=True)
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'videos'), exist_ok=True)
+os.makedirs(os.path.join('static', 'sounds'), exist_ok=True)
+
+# Global WebSocket connections
+ws_clients = set()
+
+@sock.route('/ws')
+def ws_handler(ws):
+    ws_clients.add(ws)
+    try:
+        while True:
+            data = ws.receive()
+            # Keep connection alive
+    except:
+        ws_clients.remove(ws)
+
+def notify_detection():
+    message = json.dumps({'type': 'detection'})
+    dead_clients = set()
+    for client in ws_clients:
+        try:
+            client.send(message)
+        except:
+            dead_clients.add(client)
+    # Remove dead connections
+    ws_clients.difference_update(dead_clients)
 
 @app.route('/')
 def home():
@@ -274,7 +303,8 @@ video_state = {
     'alert_triggered': False,  # Whether an alert object was detected in current frame
     'video_effect': 'normal',  # Current video effect
     'playback_speed': 1.0,
-    'is_reversed': False
+    'is_reversed': False,
+    'resume_time': None
 }
 
 def apply_video_effect(frame, effect):
@@ -432,6 +462,12 @@ def get_video_frame():
     cap = video_state['cap']
     
     while True:
+        if video_state.get('resume_time') and video_state['is_paused']:
+            if time.time() >= video_state['resume_time']:
+                video_state['is_paused'] = False
+                video_state['alert_triggered'] = False
+                video_state['resume_time'] = None
+        
         if not video_state['is_paused']:
             # Calculate frame step based on speed and direction
             frame_step = int(video_state['playback_speed'] * (1 if not video_state['is_reversed'] else -1))
@@ -474,16 +510,38 @@ def get_video_frame():
                 
                 # Check if this is an alert object
                 is_alert = obj_name in video_state['active_alert_objects']
-                box_color = (0, 0, 255) if is_alert else (0, 255, 0)  # Red for alerts, Green for normal
+                
+                # Calculate box size and use it to determine intensity
+                box_width = x2 - x1
+                box_height = y2 - y1
+                box_area = box_width * box_height
+                frame_area = frame.shape[0] * frame.shape[1]
+                
+                # Normalize box area relative to frame size (0 to 1)
+                size_factor = min(box_area / frame_area * 4, 1.0)  # multiply by 4 to make the effect more pronounced
+                
+                # Base colors (BGR format)
+                if is_alert:
+                    base_color = (0, 0, 255)  # Red for alerts
+                else:
+                    base_color = (0, 255, 100)  # Brighter green (reduced blue component)
+                
+                # Adjust color intensity based on size_factor with higher minimum intensity
+                box_color = tuple(int(c * (0.6 + 0.4 * size_factor)) for c in base_color)  # min 60% intensity
+                text_color = tuple(int(c * (0.7 + 0.3 * size_factor)) for c in base_color)  # min 70% intensity
                 
                 # Only draw box if object type is not hidden
                 if obj_name not in video_state['hidden_objects']:
                     label = f"{obj_name} {conf:.2f}"
+                    # Slightly thicker box (changed from 1 to 2)
                     cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), box_color, 2)
-                    cv2.putText(frame, label, (int(x1), int(y1)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, box_color, 2)
+                    # Adjust text size based on distance
+                    text_size = 0.4 + (0.3 * size_factor)  # Scale between 0.4 and 0.7
+                    cv2.putText(frame, label, (int(x1), int(y1)-5), cv2.FONT_HERSHEY_SIMPLEX, text_size, text_color, 1)
                 
                 if is_alert and not video_state['is_paused']:
                     alert_detected = True
+                    notify_detection()  # Only notify for alerts
         
         # Update the global set of detected objects
         video_state['detected_objects'].update(frame_objects)
@@ -492,6 +550,8 @@ def get_video_frame():
         if alert_detected:
             video_state['is_paused'] = True
             video_state['alert_triggered'] = True
+            # Schedule auto-resume after 1 second
+            video_state['resume_time'] = time.time() + 0.0
 
         # Convert frame to jpg
         ret, buffer = cv2.imencode('.jpg', frame)
