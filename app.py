@@ -116,8 +116,16 @@ def video_feed():
 @app.route('/toggle_pause')
 def toggle_pause():
     global video_state
-    video_state['is_paused'] = not video_state['is_paused']
-    return {'status': 'ok', 'is_paused': video_state['is_paused']}
+    try:
+        if video_state['cap'] is not None:
+            # Initialize is_paused if it doesn't exist
+            if 'is_paused' not in video_state:
+                video_state['is_paused'] = False
+            video_state['is_paused'] = not video_state['is_paused']
+            return {'status': 'ok', 'is_paused': video_state['is_paused']}
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}
+    return {'status': 'error', 'message': 'No video loaded'}
 
 @app.route('/current_frame')
 def current_frame():

@@ -123,21 +123,33 @@
         display: block;
       }
       .video-controls {
-        display: none;
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: #f5f5f5;
+        border-radius: 0 0 4px 4px;
+        border: 1px solid #e0e0e0;
+        border-top: none;
       }
-      .control-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 8px;
+      .video-controls button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
+        border: none;
+        background: white;
+        cursor: pointer;
         transition: background-color 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       }
-      .control-btn:hover {
-        background-color: rgba(0, 0, 0, 0.1);
+      .video-controls button:hover {
+        background: #eeeeee;
       }
-      .control-btn i {
+      .video-controls button i {
         font-size: 24px;
+        color: #2196F3;
       }
       .time-slider {
         width: 100%;
@@ -416,33 +428,40 @@
           <div class="image-container" style="max-width: calc(100vw - 690px); margin: 0 15px;">
             <h5>OpenCV Video Analytics</h5>
             <p class="grey-text">{{ video_file }}</p>
-            <img id="videoStream" 
-                 class="video-stream" 
-                 src="{{ url_for('video_feed') }}" 
-                 alt="Video stream"
-                 {% if video_file %}autoplay{% endif %}>
-          </div>
-          
-          <div class="alert-list" style="max-width: calc(100vw - 690px); margin: 20px 15px 0;">
-            <div style="display: flex; align-items: center;">
-              <h5 style="margin: 0;">Alert Objects</h5>
-              <div class="sound-control" id="soundControl" title="Toggle alert sounds">
-                <i class="material-icons">volume_up</i>
+            <div id="videoContainer">
+              <img id="videoStream" 
+                   class="video-stream" 
+                   src="{{ url_for('video_feed') }}" 
+                   alt="Video stream"
+                   {% if video_file %}autoplay{% endif %}>
+              <div class="video-controls">
+                <button id="playPauseBtn" title="Play/Pause">
+                  <i class="material-icons">pause</i>
+                </button>
               </div>
             </div>
-            <p class="grey-text">Click to enable/disable alerts. Video will pause when selected objects are detected.</p>
-            <div id="alertList" class="alert-items-container">
-              <!-- Alert objects will be populated here -->
+            
+            <div class="alert-list" style="max-width: calc(100vw - 690px); margin: 20px 15px 0;">
+              <div style="display: flex; align-items: center;">
+                <h5 style="margin: 0;">Alert Objects</h5>
+                <div class="sound-control" id="soundControl" title="Toggle alert sounds">
+                  <i class="material-icons">volume_up</i>
+                </div>
+              </div>
+              <p class="grey-text">Click to enable/disable alerts. Video will pause when selected objects are detected.</p>
+              <div id="alertList" class="alert-items-container">
+                <!-- Alert objects will be populated here -->
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Right side panel -->
-        <div class="object-list-container">
-          <h5>Detected Objects</h5>
-          <p class="grey-text">Click to toggle visibility</p>
-          <div id="objectList" style="margin-top: 50px;">
-            <!-- Object list will be populated here -->
+          <!-- Right side panel -->
+          <div class="object-list-container">
+            <h5>Detected Objects</h5>
+            <p class="grey-text">Click to toggle visibility</p>
+            <div id="objectList" style="margin-top: 50px;">
+              <!-- Object list will be populated here -->
+            </div>
           </div>
         </div>
       </div>
@@ -733,6 +752,29 @@
         var elems = document.querySelectorAll('.collapsible');
         var instances = M.Collapsible.init(elems);
         
+        // Video control elements
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        let isPlaying = true;
+
+        // Play/Pause button click handler
+        playPauseBtn.addEventListener('click', function() {
+          fetch('/toggle_pause')
+            .then(response => response.json())
+            .then(data => {
+              if (data.status === 'ok') {
+                const icon = playPauseBtn.querySelector('i');
+                if (data.is_paused) {
+                  icon.textContent = 'play_arrow';
+                  playPauseBtn.title = 'Play';
+                } else {
+                  icon.textContent = 'pause';
+                  playPauseBtn.title = 'Pause';
+                }
+              }
+            })
+            .catch(error => console.error('Error toggling pause:', error));
+        });
+
         // Get the audio element and control button
         const detectionSound = document.getElementById('detectionSound');
         const soundControl = document.getElementById('soundControl');
