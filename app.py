@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 import logging
 import json
 import time
+import warnings
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -257,8 +258,15 @@ def toggle_direction():
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'avi', 'mov'}
 
+# Suppress specific PyTorch warning from YOLOv5
+warnings.filterwarnings('ignore', category=FutureWarning, message='.*torch.cuda.amp.autocast.*')
+
+# Set up device
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 # Load YOLOv5 model
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True, force_reload=True)
+model.to(device)
 model.eval()
 
 def allowed_image_file(filename):
