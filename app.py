@@ -3,7 +3,7 @@ import torch
 import numpy as np
 from PIL import Image
 import cv2
-from flask import Flask, render_template, request, url_for, redirect, Response, session
+from flask import Flask, render_template, request, url_for, redirect, Response, session, jsonify
 from flask_sock import Sock
 from werkzeug.utils import secure_filename
 import logging

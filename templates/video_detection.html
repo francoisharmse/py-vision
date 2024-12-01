@@ -142,14 +142,14 @@
         background: white;
         cursor: pointer;
         transition: background-color 0.3s;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
       .video-controls button:hover {
         background: #eeeeee;
       }
       .video-controls button i {
         font-size: 24px;
-        color: #2196F3;
+        color: #2196f3;
       }
       .time-slider-container {
         flex: 1;
@@ -178,14 +178,14 @@
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background: #2196F3;
+        background: #2196f3;
         cursor: pointer;
       }
       .time-slider::-moz-range-thumb {
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background: #2196F3;
+        background: #2196f3;
         cursor: pointer;
         border: none;
       }
@@ -352,8 +352,11 @@
     </style>
   </head>
   <body>
-    <audio id="detectionSound" style="display: none;">
-      <source src="{{ url_for('static', filename='sounds/beep.mp3') }}" type="audio/mpeg">
+    <audio id="detectionSound" style="display: none">
+      <source
+        src="{{ url_for('static', filename='sounds/beep.mp3') }}"
+        type="audio/mpeg"
+      />
     </audio>
     <nav>
       <div class="nav-wrapper blue">
@@ -361,10 +364,14 @@
           <i class="material-icons">home</i>
         </a>
         <a href="#" class="brand-logo center">Object Detection</a>
-        <ul class="left" style="margin-left: 50px;">
+        <ul class="left" style="margin-left: 50px">
           <li><a href="{{ url_for('home') }}">Home</a></li>
-          <li><a href="{{ url_for('image_detection') }}">Image Detection</a></li>
-          <li class="active"><a href="{{ url_for('video_detection') }}">Video Detection</a></li>
+          <li>
+            <a href="{{ url_for('image_detection') }}">Image Detection</a>
+          </li>
+          <li class="active">
+            <a href="{{ url_for('video_detection') }}">Video Detection</a>
+          </li>
         </ul>
       </div>
     </nav>
@@ -372,23 +379,38 @@
     <div class="main-container">
       {% if not video_file %}
       <div class="video-container">
-        <div style="width: 100%;">
-          <div class="row" style="margin-bottom: 0;">
+        <div style="width: 100%">
+          <div class="row" style="margin-bottom: 0">
             <div class="col s12">
-              <div class="card" style="max-width: 1200px; margin: 0 auto;">
+              <div class="card" style="max-width: 1200px; margin: 0 auto">
                 <div class="card-content">
                   <span class="card-title">Upload a Video</span>
-                  <form class="upload-form" method="POST" enctype="multipart/form-data">
+                  <form
+                    class="upload-form"
+                    method="POST"
+                    enctype="multipart/form-data"
+                  >
                     <div class="file-field input-field">
                       <div class="btn blue">
                         <span>File</span>
-                        <input type="file" name="file" accept=".mp4,.avi,.mov">
+                        <input
+                          type="file"
+                          name="file"
+                          accept=".mp4,.avi,.mov"
+                        />
                       </div>
                       <div class="file-path-wrapper">
-                        <input class="file-path validate" type="text" placeholder="Upload a video">
+                        <input
+                          class="file-path validate"
+                          type="text"
+                          placeholder="Upload a video"
+                        />
                       </div>
                     </div>
-                    <button class="btn waves-effect waves-light blue" type="submit">
+                    <button
+                      class="btn waves-effect waves-light blue"
+                      type="submit"
+                    >
                       Upload
                       <i class="material-icons right">cloud_upload</i>
                     </button>
@@ -402,21 +424,38 @@
       {% else %}
       <div class="row">
         <!-- Left side panels -->
-        <div class="side-container">                    
-          <form class="upload-form" method="POST" enctype="multipart/form-data" id="uploadForm" style="text-align: center;">
-            <input type="file" name="file" accept=".mp4,.avi,.mov" style="display: none;" id="fileInput">
-            <button type="button" class="btn blue" style="display: inline-flex; align-items: center; margin: 0 auto;" onclick="document.getElementById('fileInput').click();">
+        <div class="side-container">
+          <form
+            class="upload-form"
+            method="POST"
+            enctype="multipart/form-data"
+            id="uploadForm"
+            style="text-align: center"
+          >
+            <input
+              type="file"
+              name="file"
+              accept=".mp4,.avi,.mov"
+              style="display: none"
+              id="fileInput"
+            />
+            <button
+              type="button"
+              class="btn blue"
+              style="display: inline-flex; align-items: center; margin: 0 auto"
+              onclick="document.getElementById('fileInput').click();"
+            >
               <i class="material-icons left">add_circle</i>
               <span>Analyze a New Video</span>
             </button>
           </form>
         </div>
-        
+
         <!-- Video Filters container -->
         <div class="effects-list">
           <h5>Video Filters</h5>
           <p class="grey-text">Click to apply filter</p>
-          
+
           <!-- Style-Based Filters Section -->
           <ul class="collapsible">
             <li class="active">
@@ -453,23 +492,50 @@
         </div>
 
         <!-- Main content -->
-        <div style="margin-left: 335px; margin-right: 335px; position: fixed; top: 84px; left: 0; right: 0;">
-          <div class="image-container" style="max-width: calc(100vw - 690px); margin: 0 15px;">
+        <div
+          style="
+            margin-left: 335px;
+            margin-right: 335px;
+            position: fixed;
+            top: 84px;
+            left: 0;
+            right: 0;
+          "
+        >
+          <div
+            class="image-container"
+            style="max-width: calc(100vw - 690px); margin: 0 15px"
+          >
             <h5>OpenCV Video Analytics</h5>
             <p class="grey-text">{{ video_file }}</p>
             <div id="videoContainer">
-              <img id="videoStream" 
-                   class="video-stream" 
-                   src="{{ url_for('video_feed') }}" 
-                   alt="Video stream"
-                   {% if video_file %}autoplay{% endif %}>
+              <img
+                id="videoStream"
+                class="video-stream"
+                src="{{ url_for('video_feed') }}"
+                alt="Video stream"
+                {%
+                if
+                video_file
+                %}autoplay{%
+                endif
+                %}
+              />
               <div class="video-controls">
                 <button id="playPauseBtn" title="Play/Pause">
                   <i class="material-icons">pause</i>
                 </button>
                 <div class="time-slider-container">
                   <span class="time-display" id="currentTime">0:00</span>
-                  <input type="range" class="time-slider" id="timeSlider" value="0" min="0" max="100" step="0.1">
+                  <input
+                    type="range"
+                    class="time-slider"
+                    id="timeSlider"
+                    value="0"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                  />
                   <span class="time-display" id="totalTime">0:00</span>
                 </div>
                 <button id="soundControl" title="Toggle Sound">
@@ -477,15 +543,25 @@
                 </button>
               </div>
             </div>
-            
-            <div class="alert-list" style="max-width: calc(100vw - 690px); margin: 20px 15px 0;">
-              <div style="display: flex; align-items: center;">
-                <h5 style="margin: 0;">Alert Objects</h5>
-                <div class="sound-control" id="soundControl2" title="Toggle alert sounds">
+
+            <div
+              class="alert-list"
+              style="max-width: calc(100vw - 690px); margin: 20px 15px 0"
+            >
+              <div style="display: flex; align-items: center">
+                <h5 style="margin: 0">Alert Objects</h5>
+                <div
+                  class="sound-control"
+                  id="soundControl2"
+                  title="Toggle alert sounds"
+                >
                   <i class="material-icons">volume_up</i>
                 </div>
               </div>
-              <p class="grey-text">Click to enable/disable alerts. Video will pause when selected objects are detected.</p>
+              <p class="grey-text">
+                Click to enable/disable alerts. Video will pause when selected
+                objects are detected.
+              </p>
               <div id="alertList" class="alert-items-container">
                 <!-- Alert objects will be populated here -->
               </div>
@@ -496,7 +572,7 @@
           <div class="object-list-container">
             <h5>Detected Objects</h5>
             <p class="grey-text">Click to toggle visibility</p>
-            <div id="objectList" style="margin-top: 50px;">
+            <div id="objectList" style="margin-top: 50px">
               <!-- Object list will be populated here -->
             </div>
           </div>
@@ -509,7 +585,7 @@
     <div class="object-list-container">
       <h5>Detected Objects</h5>
       <p class="grey-text">Click to toggle visibility</p>
-      <div id="objectList" style="margin-top: 50px;">
+      <div id="objectList" style="margin-top: 50px">
         <!-- Object list will be populated here -->
       </div>
     </div>
@@ -523,58 +599,155 @@
       let videoDuration = 0;
       let isSliderDragging = false;
       let detectedObjects = new Set();
-      let alertObjects = ['person', 'dog', 'cell phone', 'bicycle', 'car', 'bus', 'gun', 'rifle'];
+      let alertObjects = [
+        "person",
+        "dog",
+        "cell phone",
+        "bicycle",
+        "car",
+        "bus",
+        "gun",
+        "rifle",
+      ];
       let activeAlertObjects = new Set();
-      let currentEffect = 'normal';
+      let currentEffect = "normal";
       let videoEffects = {
         style: [
-          { name: 'normal', icon: 'video_settings', label: 'Normal', description: 'Original video without any effects' },
-          { name: 'wireframe', icon: 'grid_on', label: 'Wireframe', description: 'Converts video into a wireframe representation of objects' },
-          { name: 'sketch', icon: 'create', label: 'Sketch/Line Drawing', description: 'Transforms video into a pencil or line-drawn appearance' },
-          { name: 'cartoon', icon: 'mood', label: 'Cartoon/Comic', description: 'Simplifies colors and adds bold outlines for a cartoon look' },
-          { name: 'watercolor', icon: 'palette', label: 'Watercolor/Painting', description: 'Mimics a watercolor or oil painting style' },
-          { name: 'vintage', icon: 'photo_filter', label: 'Vintage/Retro', description: 'Applies sepia tones and grain for an old-school look' },
-          { name: 'black_and_white', icon: 'monochrome_photos', label: 'Black & White', description: 'Converts video into grayscale' },
-          { name: 'film_grain', icon: 'grain', label: 'Film Grain', description: 'Adds a textured grain effect to mimic old film stock' }
+          {
+            name: "normal",
+            icon: "video_settings",
+            label: "Normal",
+            description: "Original video without any effects",
+          },
+          {
+            name: "wireframe",
+            icon: "grid_on",
+            label: "Wireframe",
+            description:
+              "Converts video into a wireframe representation of objects",
+          },
+          {
+            name: "sketch",
+            icon: "create",
+            label: "Sketch/Line Drawing",
+            description:
+              "Transforms video into a pencil or line-drawn appearance",
+          },
+          {
+            name: "cartoon",
+            icon: "mood",
+            label: "Cartoon/Comic",
+            description:
+              "Simplifies colors and adds bold outlines for a cartoon look",
+          },
+          {
+            name: "watercolor",
+            icon: "palette",
+            label: "Watercolor/Painting",
+            description: "Mimics a watercolor or oil painting style",
+          },
+          {
+            name: "vintage",
+            icon: "photo_filter",
+            label: "Vintage/Retro",
+            description: "Applies sepia tones and grain for an old-school look",
+          },
+          {
+            name: "black_and_white",
+            icon: "monochrome_photos",
+            label: "Black & White",
+            description: "Converts video into grayscale",
+          },
+          {
+            name: "film_grain",
+            icon: "grain",
+            label: "Film Grain",
+            description: "Adds a textured grain effect to mimic old film stock",
+          },
         ],
         color: [
-          { name: 'color_grading', icon: 'color_lens', label: 'Color Grading', description: 'Professional color correction and grading' },
-          { name: 'hue_shift', icon: 'tune', label: 'Hue Shift', description: 'Dynamic color shifting effects' },
-          { name: 'invert', icon: 'invert_colors', label: 'Invert Colors', description: 'Inverts all colors in the video' },
-          { name: 'duotone', icon: 'gradient', label: 'Duotone', description: 'Two-color artistic effect' },
-          { name: 'sepia', icon: 'filter_vintage', label: 'Sepia', description: 'Classic sepia-toned effect' }
+          {
+            name: "color_grading",
+            icon: "color_lens",
+            label: "Color Grading",
+            description: "Professional color correction and grading",
+          },
+          {
+            name: "hue_shift",
+            icon: "tune",
+            label: "Hue Shift",
+            description: "Dynamic color shifting effects",
+          },
+          {
+            name: "invert",
+            icon: "invert_colors",
+            label: "Invert Colors",
+            description: "Inverts all colors in the video",
+          },
+          {
+            name: "duotone",
+            icon: "gradient",
+            label: "Duotone",
+            description: "Two-color artistic effect",
+          },
+          {
+            name: "sepia",
+            icon: "filter_vintage",
+            label: "Sepia",
+            description: "Classic sepia-toned effect",
+          },
         ],
         blur: [
-          { name: 'gaussian_blur', icon: 'blur_circular', label: 'Gaussian Blur', description: 'Soft, uniform blur effect' },
-          { name: 'motion_blur', icon: 'blur_linear', label: 'Motion Blur', description: 'Directional blur for movement effect' },
-          { name: 'tilt_shift', icon: 'blur_on', label: 'Tilt-Shift', description: 'Selective focus for miniature effect' },
-          { name: 'sharpen', icon: 'filter_center_focus', label: 'Sharpen', description: 'Enhance edge details' }
-        ]
+          {
+            name: "gaussian_blur",
+            icon: "blur_circular",
+            label: "Gaussian Blur",
+            description: "Soft, uniform blur effect",
+          },
+          {
+            name: "motion_blur",
+            icon: "blur_linear",
+            label: "Motion Blur",
+            description: "Directional blur for movement effect",
+          },
+          {
+            name: "tilt_shift",
+            icon: "blur_on",
+            label: "Tilt-Shift",
+            description: "Selective focus for miniature effect",
+          },
+          {
+            name: "sharpen",
+            icon: "filter_center_focus",
+            label: "Sharpen",
+            description: "Enhance edge details",
+          },
+        ],
       };
 
       // Add click handler for video stream and initialize updates
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener("DOMContentLoaded", function () {
         // Initialize Materialize components first
-        var elems = document.querySelectorAll('.collapsible');
+        var elems = document.querySelectorAll(".collapsible");
         var instances = M.Collapsible.init(elems, {
-          accordion: true
+          accordion: true,
         });
 
         // Clear existing filter lists
-        document.getElementById('styleFiltersList').innerHTML = '';
-        document.getElementById('colorFiltersList').innerHTML = '';
-        document.getElementById('blurFiltersList').innerHTML = '';
+        document.getElementById("styleFiltersList").innerHTML = "";
+        document.getElementById("colorFiltersList").innerHTML = "";
+        document.getElementById("blurFiltersList").innerHTML = "";
 
         // Now create the filter lists
         createEffectsList();
 
-        const videoStream = document.getElementById('videoStream');
+        const videoStream = document.getElementById("videoStream");
         if (videoStream) {
-          videoStream.addEventListener('click', toggleVideo);
-          
+          videoStream.addEventListener("click", toggleVideo);
+
           // Initial object list update
           updateVideoInfo();
-          
+
           // Start regular updates
           setInterval(updateVideoInfo, 1000);
         }
@@ -584,115 +757,141 @@
         try {
           const response = await fetch("{{ url_for('video_info') }}");
           const data = await response.json();
-          
+
           // Update object list if there are new objects
           if (data.detected_objects) {
             const newObjects = new Set(data.detected_objects);
-            if (JSON.stringify([...newObjects]) !== JSON.stringify([...detectedObjects])) {
+            if (
+              JSON.stringify([...newObjects]) !==
+              JSON.stringify([...detectedObjects])
+            ) {
               detectedObjects = newObjects;
-              createObjectList(data.detected_objects, data.hidden_objects || []);
+              createObjectList(
+                data.detected_objects,
+                data.hidden_objects || []
+              );
             }
           }
-          
+
           // Update video timing info
           if (!isSliderDragging && data.duration) {
-            document.getElementById('currentTime').textContent = formatTime(data.current_time);
-            document.getElementById('totalTime').textContent = formatTime(data.duration);
-            document.getElementById('timeSlider').value = (data.current_time / data.duration) * 100;
+            document.getElementById("currentTime").textContent = formatTime(
+              data.current_time
+            );
+            document.getElementById("totalTime").textContent = formatTime(
+              data.duration
+            );
+            document.getElementById("timeSlider").value =
+              (data.current_time / data.duration) * 100;
             videoDuration = data.duration;
           }
         } catch (error) {
-          console.error('Error updating video info:', error);
+          console.error("Error updating video info:", error);
         }
       }
 
       function createObjectList(objects, hiddenObjects) {
-        const objectList = document.getElementById('objectList');
+        const objectList = document.getElementById("objectList");
         if (!objectList) return;
-        
-        objectList.innerHTML = '';
-        
+
+        objectList.innerHTML = "";
+
         if (!objects || objects.length === 0) {
-          objectList.innerHTML = '<p class="grey-text">No objects detected yet</p>';
+          objectList.innerHTML =
+            '<p class="grey-text">No objects detected yet</p>';
           return;
         }
-        
-        objects.sort().forEach(obj => {
-          const div = document.createElement('div');
-          div.className = `object-item waves-effect ${hiddenObjects.includes(obj) ? 'hidden' : ''}`;
+
+        objects.sort().forEach((obj) => {
+          const div = document.createElement("div");
+          div.className = `object-item waves-effect ${
+            hiddenObjects.includes(obj) ? "hidden" : ""
+          }`;
           div.onclick = () => toggleObject(obj, div);
-          
+
           div.innerHTML = `
-            <i class="material-icons">${hiddenObjects.includes(obj) ? 'visibility_off' : 'visibility'}</i>
+            <i class="material-icons">${
+              hiddenObjects.includes(obj) ? "visibility_off" : "visibility"
+            }</i>
             ${obj}
           `;
-          
+
           objectList.appendChild(div);
         });
       }
-      
+
       async function toggleVideo() {
-        const videoStream = document.getElementById('videoStream');
-        const playOverlay = document.getElementById('playOverlay');
-        const playPauseIcon = document.getElementById('playPauseIcon');
-        
+        const videoStream = document.getElementById("videoStream");
+        const playOverlay = document.getElementById("playOverlay");
+        const playPauseIcon = document.getElementById("playPauseIcon");
+
         const response = await fetch("{{ url_for('toggle_pause') }}");
         const data = await response.json();
-        
+
         isPaused = data.is_paused;
         if (isPaused) {
-          videoStream.classList.add('paused');
-          playOverlay.style.display = 'block';
-          playPauseIcon.textContent = 'play_arrow';
+          videoStream.classList.add("paused");
+          playOverlay.style.display = "block";
+          playPauseIcon.textContent = "play_arrow";
         } else {
-          videoStream.classList.remove('paused');
-          playOverlay.style.display = 'none';
-          playPauseIcon.textContent = 'pause';
+          videoStream.classList.remove("paused");
+          playOverlay.style.display = "none";
+          playPauseIcon.textContent = "pause";
         }
       }
-      
+
       function formatTime(seconds) {
         const minutes = Math.floor(seconds / 60);
         seconds = Math.floor(seconds % 60);
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
       }
-      
+
       async function toggleObject(objectName, element) {
-        const response = await fetch(`{{ url_for('toggle_object') }}?name=${encodeURIComponent(objectName)}`);
+        const response = await fetch(
+          `{{ url_for('toggle_object') }}?name=${encodeURIComponent(
+            objectName
+          )}`
+        );
         const data = await response.json();
-        
-        if (data.status === 'ok') {
-          element.classList.toggle('hidden');
-          const icon = element.querySelector('i');
-          icon.textContent = data.hidden ? 'visibility_off' : 'visibility';
+
+        if (data.status === "ok") {
+          element.classList.toggle("hidden");
+          const icon = element.querySelector("i");
+          icon.textContent = data.hidden ? "visibility_off" : "visibility";
         }
       }
 
       // Create alert objects list
       function createAlertList() {
-        const alertList = document.getElementById('alertList');
-        alertList.innerHTML = '';
-        
-        alertObjects.forEach(obj => {
-          const div = document.createElement('div');
-          div.className = `alert-item waves-effect ${activeAlertObjects.has(obj) ? 'active' : ''}`;
+        const alertList = document.getElementById("alertList");
+        alertList.innerHTML = "";
+
+        alertObjects.forEach((obj) => {
+          const div = document.createElement("div");
+          div.className = `alert-item waves-effect ${
+            activeAlertObjects.has(obj) ? "active" : ""
+          }`;
           div.onclick = () => toggleAlertObject(obj, div);
-          
+
           div.innerHTML = `
             <i class="material-icons">warning</i>
             ${obj}
           `;
-          
+
           alertList.appendChild(div);
         });
       }
-      
+
       async function toggleAlertObject(objectName, element) {
-        const response = await fetch(`{{ url_for('toggle_alert_object') }}?name=${encodeURIComponent(objectName)}`);
+        const response = await fetch(
+          `{{ url_for('toggle_alert_object') }}?name=${encodeURIComponent(
+            objectName
+          )}`
+        );
         const data = await response.json();
-        
-        if (data.status === 'ok') {
-          element.classList.toggle('active');
+
+        if (data.status === "ok") {
+          element.classList.toggle("active");
           if (data.active) {
             activeAlertObjects.add(objectName);
           } else {
@@ -700,181 +899,282 @@
           }
         }
       }
-      
+
       // Initialize alert list
       createAlertList();
-      
+
       // Handle time slider
-      const timeSlider = document.getElementById('timeSlider');
-      timeSlider.addEventListener('mousedown', () => {
+      const timeSlider = document.getElementById("timeSlider");
+      timeSlider.addEventListener("mousedown", () => {
         isSliderDragging = true;
       });
-      
-      timeSlider.addEventListener('mouseup', () => {
+
+      timeSlider.addEventListener("mouseup", () => {
         isSliderDragging = false;
       });
-      
-      timeSlider.addEventListener('change', (e) => {
+
+      timeSlider.addEventListener("change", (e) => {
         const time = (e.target.value / 100) * videoDuration;
         setVideoPosition(time);
       });
 
       function createEffectsList() {
-        console.log('Creating effects list...');
-        const styleList = document.getElementById('styleFiltersList');
-        const colorList = document.getElementById('colorFiltersList');
-        const blurList = document.getElementById('blurFiltersList');
-        
+        console.log("Creating effects list...");
+        const styleList = document.getElementById("styleFiltersList");
+        const colorList = document.getElementById("colorFiltersList");
+        const blurList = document.getElementById("blurFiltersList");
+
         if (!styleList || !colorList || !blurList) {
-          console.error('Filter list elements not found');
+          console.error("Filter list elements not found");
           return;
         }
 
         function createEffectItem(effect) {
-          const div = document.createElement('div');
-          div.className = `effect-item waves-effect ${effect.name === currentEffect ? 'active' : ''}`;
+          const div = document.createElement("div");
+          div.className = `effect-item waves-effect ${
+            effect.name === currentEffect ? "active" : ""
+          }`;
           div.onclick = () => toggleEffect(effect.name, div);
-          
+
           div.innerHTML = `
             <i class="material-icons">${effect.icon}</i>
             ${effect.label}
           `;
-          
+
           return div;
         }
-        
+
         // Create style filters
-        videoEffects.style.forEach(effect => {
+        videoEffects.style.forEach((effect) => {
           styleList.appendChild(createEffectItem(effect));
         });
-        
+
         // Create color filters
-        videoEffects.color.forEach(effect => {
+        videoEffects.color.forEach((effect) => {
           colorList.appendChild(createEffectItem(effect));
         });
-        
+
         // Create blur filters
-        videoEffects.blur.forEach(effect => {
+        videoEffects.blur.forEach((effect) => {
           blurList.appendChild(createEffectItem(effect));
         });
 
-        console.log('Effects list created');
+        console.log("Effects list created");
       }
 
       // Initialize effects list
       // createEffectsList();
-      
+
       async function toggleEffect(effectName, element) {
-        const response = await fetch(`{{ url_for('set_video_effect') }}?effect=${encodeURIComponent(effectName)}`);
+        const response = await fetch(
+          `{{ url_for('set_video_effect') }}?effect=${encodeURIComponent(
+            effectName
+          )}`
+        );
         const data = await response.json();
-        
-        if (data.status === 'ok') {
+
+        if (data.status === "ok") {
           currentEffect = effectName;
-          document.querySelectorAll('.effect-item').forEach(item => item.classList.remove('active'));
-          element.classList.add('active');
+          document
+            .querySelectorAll(".effect-item")
+            .forEach((item) => item.classList.remove("active"));
+          element.classList.add("active");
         }
       }
 
       async function setVideoPosition(time) {
-        const response = await fetch(`{{ url_for('set_video_position') }}?time=${time}`);
+        const response = await fetch(
+          `{{ url_for('set_video_position') }}?time=${time}`
+        );
         const data = await response.json();
         if (data.success) {
-          document.getElementById('currentTime').textContent = formatTime(time);
+          document.getElementById("currentTime").textContent = formatTime(time);
         }
       }
     </script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener("DOMContentLoaded", function () {
         // Initialize Materialize components
-        var elems = document.querySelectorAll('.collapsible');
+        var elems = document.querySelectorAll(".collapsible");
         var instances = M.Collapsible.init(elems);
-        
+
         // Video control elements
-        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playPauseBtn = document.getElementById("playPauseBtn");
         let isPlaying = true;
 
         // Play/Pause button click handler
-        playPauseBtn.addEventListener('click', function() {
-          fetch('/toggle_pause')
-            .then(response => response.json())
-            .then(data => {
-              if (data.status === 'ok') {
-                const icon = playPauseBtn.querySelector('i');
+        playPauseBtn.addEventListener("click", function () {
+          fetch("/toggle_pause")
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.status === "ok") {
+                const icon = playPauseBtn.querySelector("i");
                 if (data.is_paused) {
-                  icon.textContent = 'play_arrow';
-                  playPauseBtn.title = 'Play';
+                  icon.textContent = "play_arrow";
+                  playPauseBtn.title = "Play";
                 } else {
-                  icon.textContent = 'pause';
-                  playPauseBtn.title = 'Pause';
+                  icon.textContent = "pause";
+                  playPauseBtn.title = "Pause";
                 }
               }
             })
-            .catch(error => console.error('Error toggling pause:', error));
+            .catch((error) => console.error("Error toggling pause:", error));
         });
 
         // Get the audio element and control button
-        const detectionSound = document.getElementById('detectionSound');
-        const soundControl = document.getElementById('soundControl');
-        const soundControl2 = document.getElementById('soundControl2');
-        const soundIcon = soundControl.querySelector('i');
-        const soundIcon2 = soundControl2.querySelector('i');
+        const detectionSound = document.getElementById("detectionSound");
+        const soundControl = document.getElementById("soundControl");
+        const soundControl2 = document.getElementById("soundControl2");
+        const soundIcon = soundControl.querySelector("i");
+        const soundIcon2 = soundControl2.querySelector("i");
         let isMuted = false;
-        
+
         // Toggle mute/unmute
-        soundControl.addEventListener('click', function() {
+        soundControl.addEventListener("click", function () {
           isMuted = !isMuted;
           if (isMuted) {
-            soundIcon.textContent = 'volume_off';
+            soundIcon.textContent = "volume_off";
           } else {
-            soundIcon.textContent = 'volume_up';
+            soundIcon.textContent = "volume_up";
           }
         });
         // Toggle mute/unmute
-        soundControl2.addEventListener('click', function() {
+        soundControl2.addEventListener("click", function () {
           isMuted = !isMuted;
           if (isMuted) {
-            soundIcon2.textContent = 'volume_off';
+            soundIcon2.textContent = "volume_off";
           } else {
-            soundIcon2.textContent = 'volume_up';
+            soundIcon2.textContent = "volume_up";
           }
         });
-        
+
         // Function to play alert sound
         function playAlertSound() {
           if (!isMuted) {
             // Create a new Audio instance for each alert
-            const sound = new Audio(detectionSound.querySelector('source').src);
+            const sound = new Audio(detectionSound.querySelector("source").src);
             sound.volume = 1.0;
-            sound.play().catch(e => console.log('Audio play failed:', e));
+            sound.play().catch((e) => console.log("Audio play failed:", e));
           }
         }
-        
+
         // WebSocket connection for real-time updates
-        const ws = new WebSocket('ws://' + window.location.host + '/ws');
-        ws.onmessage = function(event) {
+        const ws = new WebSocket("ws://" + window.location.host + "/ws");
+        ws.onmessage = function (event) {
           const data = JSON.parse(event.data);
-          if (data.type === 'detection') {
+          if (data.type === "detection") {
             playAlertSound();
           }
         };
-        
+
         // Auto-submit form when file is selected
-        document.getElementById('fileInput').addEventListener('change', function() {
-          if (this.files.length > 0) {
-            this.form.submit();
-          }
-        });
+        document
+          .getElementById("fileInput")
+          .addEventListener("change", function () {
+            if (this.files.length > 0) {
+              this.form.submit();
+            }
+          });
 
         // Auto-play video after page load if video exists
-        if (document.getElementById('videoStream')) {
-          var videoStream = document.getElementById('videoStream');
+        if (document.getElementById("videoStream")) {
+          var videoStream = document.getElementById("videoStream");
           // Check if we have a video file (page loaded after upload)
-          if ('{{ video_file }}') {
+          if ("{{ video_file }}") {
             // Force a reload of the video stream to start playing
             videoStream.src = videoStream.src;
           }
         }
       });
+    </script>
+    <script>
+      let isSliderDragging = false;
+      let videoDuration = 0;
+
+      // Format time as MM:SS
+      function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        seconds = Math.floor(seconds % 60);
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      // Handle slider events
+      const timeSlider = document.getElementById("timeSlider");
+      timeSlider.addEventListener("mousedown", () => {
+        isSliderDragging = true;
+      });
+
+      timeSlider.addEventListener("mouseup", () => {
+        isSliderDragging = false;
+        const time = (timeSlider.value / 100) * videoDuration;
+        setVideoPosition(time);
+      });
+
+      // Update time display while dragging
+      timeSlider.addEventListener("input", function () {
+        const time = (this.value / 100) * videoDuration;
+        document.getElementById("currentTime").textContent = formatTime(time);
+      });
+
+      // Add to existing updateVideoInfo function
+      async function updateVideoInfo() {
+        try {
+          const response = await fetch("{{ url_for('video_info') }}");
+          const data = await response.json();
+
+          if (data.status === "ok") {
+            // Update object lists if changed
+            if (data.detected_objects) {
+              const newObjects = new Set(data.detected_objects);
+              if (
+                JSON.stringify([...newObjects]) !==
+                JSON.stringify([...detectedObjects])
+              ) {
+                detectedObjects = newObjects;
+                createObjectList(
+                  data.detected_objects,
+                  data.hidden_objects || []
+                );
+              }
+            }
+
+            // Update video timing info if not dragging
+            if (!isSliderDragging && data.duration) {
+              videoDuration = data.duration;
+              document.getElementById("currentTime").textContent = formatTime(
+                data.current_time
+              );
+              document.getElementById("totalTime").textContent = formatTime(
+                data.duration
+              );
+              timeSlider.value = (data.current_time / data.duration) * 100;
+            }
+
+            // Check for alerts and play sound
+            if (data.alert_triggered && !isAlarmPlaying) {
+              playAlertSound();
+            }
+          }
+        } catch (error) {
+          console.error("Error updating video info:", error);
+        }
+      }
+
+      // Add new function to set video position
+      async function setVideoPosition(time) {
+        try {
+          const response = await fetch(
+            `{{ url_for('set_video_position') }}?time=${time}`
+          );
+          const data = await response.json();
+          if (data.status === "ok") {
+            document.getElementById("currentTime").textContent =
+              formatTime(time);
+          }
+        } catch (error) {
+          console.error("Error setting video position:", error);
+        }
+      }
     </script>
   </body>
 </html>
