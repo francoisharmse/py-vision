@@ -481,7 +481,7 @@
             <div class="alert-list" style="max-width: calc(100vw - 690px); margin: 20px 15px 0;">
               <div style="display: flex; align-items: center;">
                 <h5 style="margin: 0;">Alert Objects</h5>
-                <div class="sound-control" id="soundControl" title="Toggle alert sounds">
+                <div class="sound-control" id="soundControl2" title="Toggle alert sounds">
                   <i class="material-icons">volume_up</i>
                 </div>
               </div>
@@ -815,7 +815,9 @@
         // Get the audio element and control button
         const detectionSound = document.getElementById('detectionSound');
         const soundControl = document.getElementById('soundControl');
+        const soundControl2 = document.getElementById('soundControl2');
         const soundIcon = soundControl.querySelector('i');
+        const soundIcon2 = soundControl2.querySelector('i');
         let isMuted = false;
         
         // Toggle mute/unmute
@@ -825,6 +827,15 @@
             soundIcon.textContent = 'volume_off';
           } else {
             soundIcon.textContent = 'volume_up';
+          }
+        });
+        // Toggle mute/unmute
+        soundControl2.addEventListener('click', function() {
+          isMuted = !isMuted;
+          if (isMuted) {
+            soundIcon2.textContent = 'volume_off';
+          } else {
+            soundIcon2.textContent = 'volume_up';
           }
         });
         
