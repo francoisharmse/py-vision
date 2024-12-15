@@ -576,4 +576,4 @@ def get_video_frame():
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)
